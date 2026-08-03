@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoomieFind - Find Your Next Home & Flatmates</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 0. LOGIN / SIGN UP GATE                    -->
+  <!-- ========================================== -->
+  <div class="auth-screen" id="authScreen">
+    <button class="theme-toggle theme-toggle--floating" id="themeToggleAuth" type="button" aria-label="Toggle dark mode">
+      <svg class="theme-icon theme-icon--sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+      <svg class="theme-icon theme-icon--moon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+      </svg>
+    </button>
+    <div class="auth-card">
+
+      <a href="#" class="logo auth-logo">
+        <div class="logo-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </div>
+        <span class="logo-text">Roomie<span>Find</span></span>
+      </a>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab auth-tab--active" id="loginTab">Log In</button>
+        <button type="button" class="auth-tab" id="signupTab">Sign Up</button>
+      </div>
+
+      <!-- Log In Form -->
+      <form class="auth-form auth-form--active" id="loginForm" novalidate>
+        <p class="auth-intro">Welcome back! Log in to find your next home.</p>
+
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
+          <span class="form-error" id="loginEmailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+          <span class="form-error" id="loginPasswordError"></span>
+        </div>
+
+        <div class="auth-row">
+          <label class="auth-checkbox">
+            <input type="checkbox" id="rememberMe">
+            Remember me
+          </label>
+          <a href="#" class="auth-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Log In</button>
+
+        <p class="auth-switch">
+          Don't have an account?
+          <a href="#" class="auth-link" id="switchToSignup">Sign up</a>
+        </p>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form class="auth-form" id="signupForm" novalidate>
+        <p class="auth-intro">Create an account to start browsing rooms and flatmates.</p>
+
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Jane Doe" autocomplete="name">
+          <span class="form-error" id="signupNameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="you@email.com" autocomplete="email">
+          <span class="form-error" id="signupEmailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="At least 8 characters" autocomplete="new-password">
+          <span class="form-error" id="signupPasswordError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="signupConfirmPassword">Confirm Password</label>
+          <input type="password" id="signupConfirmPassword" placeholder="Re-enter your password" autocomplete="new-password">
+          <span class="form-error" id="signupConfirmPasswordError"></span>
+        </div>
+
+        <label class="auth-checkbox auth-checkbox--terms">
+          <input type="checkbox" id="agreeTerms">
+          I agree to the Terms of Service and Privacy Policy
+        </label>
+        <span class="form-error" id="agreeTermsError"></span>
+
+        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="#" class="auth-link" id="switchToLogin">Log in</a>
+        </p>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SITE CONTENT (hidden until logged in)      -->
+  <!-- ========================================== -->
+  <div class="site-content" id="siteContent">
+
+  <!-- ========================================== -->
+  <!-- 1. HEADER / NAVIGATION                     -->
+  <!-- ========================================== -->
+  <header class="site-header">
+    <div class="container container--7xl site-header__inner">
+      <!-- Logo -->
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </div>
+        <span class="logo-text">Roomie<span>Find</span></span>
+      </a>
+
+      <!-- Nav Links (Desktop) -->
+      <nav class="nav-links">
+        <a href="#explore">Explore Rooms</a>
+        <a href="#list">List Your Space</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#saved" class="nav-saved">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Saved
+        </a>
+      </nav>
+
+      <!-- Right Section -->
+      <div class="header-actions">
+        <a href="#list" class="btn btn-secondary btn-post">
+          Post a Room
+        </a>
+
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">
+          <svg class="theme-icon theme-icon--sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <svg class="theme-icon theme-icon--moon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+
+        <div class="user-menu-wrapper">
+          <button class="user-menu" id="userMenuButton" aria-haspopup="true" aria-expanded="false">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <div class="avatar">
+              JD
+            </div>
+          </button>
+
+          <div class="user-dropdown" id="userDropdown">
+            <div class="user-dropdown__header">
+              <div class="avatar avatar--lg">JD</div>
+              <div>
+                <p class="user-dropdown__name">John Doe</p>
+                <p class="user-dropdown__email">john.doe@email.com</p>
+              </div>
+            </div>
+            <div class="user-dropdown__divider"></div>
+            <a href="#profile" class="user-dropdown__item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Profile
+            </a>
+            <a href="#settings" class="user-dropdown__item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              Settings
+            </a>
+            <div class="user-dropdown__divider"></div>
+            <a href="#logout" class="user-dropdown__item user-dropdown__item--danger" id="logoutLink">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              Log out
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. HERO SECTION & SEARCH BAR               -->
+  <!-- ========================================== -->
+  <section class="hero">
+    <div class="container container--5xl hero__inner">
+      <h1 class="hero-title">
+        Find your next home and the <span>right flatmates</span> to share it with.
+      </h1>
+      <p class="hero-subtitle">
+        Discover verified listings, compatible flatmates, and seamless roommate agreements in your city.
+      </p>
+
+      <!-- Interactive Search Bar Component -->
+      <div class="search-bar">
+
+        <!-- Location Input -->
+        <div class="search-field search-field--location">
+          <label>Location</label>
+          <input type="text" placeholder="Where do you want to live?">
+        </div>
+
+        <!-- Budget Dropdown / Slider -->
+        <div class="search-field search-field--budget">
+          <label>Budget Range</label>
+          <select>
+            <option>Rs 500 - Rs 1,500/mo</option>
+            <option>Rs 1,500 - Rs 2,500/mo</option>
+            <option>Rs 2,500+/mo</option>
+          </select>
+        </div>
+
+        <!-- Room Type -->
+        <div class="search-field search-field--room">
+          <label>Room Type</label>
+          <select>
+            <option>Private Room</option>
+            <option>Shared Room</option>
+            <option>Entire Place</option>
+          </select>
+        </div>
+
+        <!-- Submit Action -->
+        <div class="search-submit">
+          <button class="btn btn-primary btn-full">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            Search Rooms
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 3. EXPLORE / LISTINGS PAGE GRID            -->
+  <!-- ========================================== -->
+  <section id="explore" class="explore container container--7xl">
+
+    <!-- Quick Filter Chips -->
+    <div class="filter-chips">
+      <button class="chip chip--active">All Filters</button>
+      <button class="chip">🐾 Pet Friendly</button>
+      <button class="chip">🛋️ Furnished</button>
+      <button class="chip">🚿 Private Bath</button>
+      <button class="chip">🛡️ Verified Landlord</button>
+      <button class="chip">⚡ Utilities Included</button>
+    </div>
+
+    <!-- Split Screen Layout -->
+    <div class="explore-layout">
+
+      <!-- Filter Sidebar (Desktop) -->
+      <aside class="filters-sidebar">
+        <h3>Filters</h3>
+        <div class="filter-group">
+          <label>Move-in Date</label>
+          <input type="date">
+        </div>
+        <div class="filter-group">
+          <label>House Vibe</label>
+          <div class="checkbox-list">
+            <label><input type="checkbox"> Quiet & Studious</label>
+            <label><input type="checkbox"> Social & Friendly</label>
+            <label><input type="checkbox"> LGBTQ+ Friendly</label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Interactive Card Grid -->
+      <div class="listings-grid">
+
+        <!-- Listing Card Component 1 -->
+        <div class="listing-card">
+          <div class="listing-card__image">
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80" alt="Room">
+            <button class="save-toggle">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </button>
+            <div class="price-badge">
+              $850<span>/mo</span>
+            </div>
+          </div>
+
+          <div class="listing-card__body">
+            <div>
+              <div class="listing-meta">
+                <span>1 Bed • 1 Bath • Furnished</span>
+                <span>10 mins walk to Subway</span>
+              </div>
+              <h4 class="listing-title">
+                Cozy Private Room in Sunnyside Apartment
+              </h4>
+            </div>
+
+            <div class="host-row">
+              <div class="host-info">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Host">
+                <span>Sarah Jenkins</span>
+              </div>
+              <span class="badge-verified">
+                Verified Host
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Listing Card Component 2 -->
+        <div class="listing-card">
+          <div class="listing-card__image">
+            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80" alt="Room">
+            <button class="save-toggle">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </button>
+            <div class="price-badge">
+              $1,100<span>/mo</span>
+            </div>
+          </div>
+          <div class="listing-card__body">
+            <div>
+              <div class="listing-meta">
+                <span>1 Bed • Shared Bath • Unfurnished</span>
+                <span>Near Downtown</span>
+              </div>
+              <h4 class="listing-title">
+                Modern Master Suite with Skyline View
+              </h4>
+            </div>
+            <div class="host-row">
+              <div class="host-info">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Host">
+                <span>Alex Rivera</span>
+              </div>
+              <span class="badge-verified">
+                Verified Host
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 4. DETAILED ROOM VIEW                      -->
+  <!-- ========================================== -->
+  <main class="detail container container--6xl">
+
+    <!-- Title & Actions -->
+    <div class="detail-heading">
+      <div>
+        <h2>Cozy Private Room in Sunnyside Apartment</h2>
+        <p>452 Sunnyside Ave, Queens, NY • 10 mins walk to Subway</p>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-outline">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          Share
+        </button>
+        <button class="btn btn-outline">
+          <svg class="icon-rose" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Save
+        </button>
+      </div>
+    </div>
+
+    <!-- Photo Gallery Grid -->
+    <div class="gallery-grid">
+      <div class="gallery-main">
+        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80" alt="Hero Photo">
+      </div>
+      <div class="gallery-sub">
+        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&q=80" alt="Photo 2">
+        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=400&q=80" alt="Photo 3">
+        <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=400&q=80" alt="Photo 4">
+        <img src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=400&q=80" alt="Photo 5">
+      </div>
+    </div>
+
+    <!-- Main Content Layout & Sticky Sidebar -->
+    <div class="detail-layout">
+
+      <!-- Left Details Column -->
+      <div class="detail-left">
+
+        <!-- Host Details & Compatibility Score -->
+        <div class="host-card">
+          <div class="host-card__top">
+            <div class="host-card__profile">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Host">
+              <div>
+                <h3>Hosted by Sarah Jenkins</h3>
+                <p>Member since March 2022 • Verified ID & Background</p>
+              </div>
+            </div>
+            <span class="match-badge">94% Match</span>
+          </div>
+          <div class="stats-grid">
+            <div>
+              <span>Cleanliness</span>
+              <span>5/5 (Immaculate)</span>
+            </div>
+            <div>
+              <span>Schedule</span>
+              <span>Early Bird</span>
+            </div>
+            <div>
+              <span>Lifestyle</span>
+              <span>Quiet & Professional</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amenities Checklist -->
+        <div class="section-block">
+          <h3>What this place offers</h3>
+          <div class="amenities-grid">
+            <div class="amenity"><span class="icon">📶</span> High-Speed Wi-Fi</div>
+            <div class="amenity"><span class="icon">❄️</span> Central AC</div>
+            <div class="amenity"><span class="icon">🧺</span> In-Unit Laundry</div>
+            <div class="amenity"><span class="icon">🚗</span> Free Parking</div>
+            <div class="amenity"><span class="icon">🏋️</span> Building Gym</div>
+            <div class="amenity"><span class="icon">🍳</span> Fully Equipped Kitchen</div>
+          </div>
+        </div>
+
+        <!-- House Rules -->
+        <div class="section-block rules-block">
+          <h3>House Rules</h3>
+          <div class="rules-grid">
+            <div class="rule">❌ No Smoking Indoors</div>
+            <div class="rule">🐾 Small Pets Allowed</div>
+            <div class="rule">🌙 Quiet Hours after 10 PM</div>
+            <div class="rule">👥 Guest Policy: Max 2 visitors</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sticky Booking / Contact Sidebar -->
+      <div class="detail-right">
+        <div class="booking-card">
+          <div class="booking-card__price">
+            <div>
+              <span class="amount">Rs 850</span>
+              <span class="period">/month</span>
+            </div>
+            <span class="availability-badge">Available Sept 1</span>
+          </div>
+
+          <!-- Cost breakdown -->
+          <div class="cost-breakdown">
+            <div class="cost-row">
+              <span>Monthly Rent</span>
+              <span>$850</span>
+            </div>
+            <div class="cost-row">
+              <span>Security Deposit</span>
+              <span>$850</span>
+            </div>
+            <div class="cost-row">
+              <span>Utilities Est.</span>
+              <span>~$60/mo</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn btn-primary btn-full" id="scheduleTourBtn">
+              Schedule a Tour
+            </button>
+            <button class="btn btn-secondary btn-full" id="chatWithHostBtn">
+              Send Message to Host
+            </button>
+            <button class="btn-link-full" id="viewBookingDetailsBtn" type="button">
+              View full booking details
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 5. "LIST YOUR ROOM" FORM FLOW              -->
+  <!-- ========================================== -->
+  <section id="list" class="list-section container container--3xl">
+
+    <div class="list-header">
+      <h2>List Your Space on RoomieFind</h2>
+      <p>Find your ideal flatmate in 4 simple steps.</p>
+
+      <!-- Stepper Indicator -->
+      <div class="stepper">
+        <div class="step-circle step-circle--active">1</div>
+        <div class="step-line step-line--active"></div>
+        <div class="step-circle">2</div>
+        <div class="step-line"></div>
+        <div class="step-circle">3</div>
+        <div class="step-line"></div>
+        <div class="step-circle">4</div>
+      </div>
+    </div>
+
+    <!-- Step Form Card -->
+    <div class="form-card">
+
+      <h3>Step 1: Location & Property Basics</h3>
+
+      <div class="form-fields">
+        <div class="form-group">
+          <label>Street Address</label>
+          <input type="text" placeholder="e.g., 452 Sunnyside Ave">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Room Type</label>
+            <select>
+              <option>Private Room</option>
+              <option>Shared Room</option>
+              <option>Entire Place</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bathrooms</label>
+            <select>
+              <option>Private Bath</option>
+              <option>Shared Bath</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="form-actions">
+        <button disabled class="btn btn-disabled">Back</button>
+        <button class="btn btn-primary">Next Step</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- BOOKING DETAILS / SCHEDULE A TOUR MODAL    -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3>Cozy Private Room in Sunnyside Apartment</h3>
+          <p>452 Sunnyside Ave, Queens, NY</p>
+        </div>
+        <button type="button" class="modal-close" id="bookingModalClose" aria-label="Close">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-tabs">
+        <button type="button" class="modal-tab modal-tab--active" id="tourTab">Schedule a Tour</button>
+        <button type="button" class="modal-tab" id="detailsTab">Booking Details</button>
+      </div>
+
+      <!-- Tour Scheduling Form -->
+      <div class="modal-pane modal-pane--active" id="tourPane">
+        <form id="tourForm" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tourDate">Tour Date</label>
+              <input type="date" id="tourDate">
+              <span class="form-error" id="tourDateError"></span>
+            </div>
+            <div class="form-group">
+              <label for="tourTime">Preferred Time</label>
+              <select id="tourTime">
+                <option value="">Select a time</option>
+                <option>9:00 AM</option>
+                <option>11:00 AM</option>
+                <option>1:00 PM</option>
+                <option>3:00 PM</option>
+                <option>5:00 PM</option>
+              </select>
+              <span class="form-error" id="tourTimeError"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tourGuests">Guests</label>
+              <select id="tourGuests">
+                <option>Just me</option>
+                <option>Me + 1 guest</option>
+                <option>Me + 2 guests</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tourPhone">Contact Phone</label>
+              <input type="tel" id="tourPhone" placeholder="(555) 123-4567">
+              <span class="form-error" id="tourPhoneError"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="tourNotes">Notes for the host (optional)</label>
+            <textarea id="tourNotes" rows="3" placeholder="Anything the host should know before your visit?"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">Confirm Tour Request</button>
+        </form>
+
+        <div class="modal-success" id="tourSuccess">
+          <div class="modal-success__icon">✓</div>
+          <h4>Tour Requested!</h4>
+          <p>Sarah Jenkins will confirm your tour time shortly. You'll get a notification once it's approved.</p>
+          <button type="button" class="btn btn-secondary btn-full" id="tourSuccessClose">Done</button>
+        </div>
+      </div>
+
+      <!-- Full Booking Details -->
+      <div class="modal-pane" id="detailsPane">
+        <div class="booking-info-grid">
+          <div class="booking-info-item">
+            <span>Move-in Date</span>
+            <span>September 1, 2026</span>
+          </div>
+          <div class="booking-info-item">
+            <span>Minimum Lease</span>
+            <span>6 months</span>
+          </div>
+          <div class="booking-info-item">
+            <span>Payment Schedule</span>
+            <span>Monthly, due on the 1st</span>
+          </div>
+          <div class="booking-info-item">
+            <span>Cancellation Policy</span>
+            <span>Full refund up to 5 days before move-in</span>
+          </div>
+        </div>
+
+        <div class="cost-breakdown">
+          <div class="cost-row">
+            <span>Monthly Rent</span>
+            <span>$850</span>
+          </div>
+          <div class="cost-row">
+            <span>Security Deposit</span>
+            <span>$850</span>
+          </div>
+          <div class="cost-row">
+            <span>Utilities Est.</span>
+            <span>~$60/mo</span>
+          </div>
+          <div class="cost-row cost-row--total">
+            <span>Due at Booking</span>
+            <span>$1,700</span>
+          </div>
+        </div>
+
+        <p class="modal-fineprint">
+          Booking fees are held securely and only released to the host once you've moved in and confirmed the room matches the listing.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CHAT WITH OWNER MODAL                      -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="chatModal">
+    <div class="modal-card modal-card--chat">
+      <div class="chat-header">
+        <div class="chat-header__profile">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Sarah Jenkins">
+          <div>
+            <h3>Sarah Jenkins</h3>
+            <p><span class="status-dot"></span> Active now</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" id="chatModalClose" aria-label="Close">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="chat-thread" id="chatThread">
+        <div class="chat-message chat-message--theirs">
+          <img class="chat-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Sarah Jenkins">
+          <div>
+            <div class="chat-bubble">Hi there! Thanks for your interest in the Sunnyside room 🌿 Happy to answer any questions.</div>
+            <div class="chat-meta">Sarah Jenkins • 10:24 AM</div>
+          </div>
+        </div>
+        <div class="chat-message chat-message--theirs">
+          <img class="chat-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Sarah Jenkins">
+          <div>
+            <div class="chat-bubble">Let me know if you'd like to schedule a tour or need details about the lease.</div>
+            <div class="chat-meta">Sarah Jenkins • 10:25 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <form class="chat-input-row" id="chatForm">
+        <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+        <button type="submit" class="chat-send-btn" aria-label="Send message">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- FOOTER                                     -->
+  <!-- ========================================== -->
+  <footer class="site-footer">
+    <p>&copy; 2026 RoomieFind, Inc. All rights reserved.</p>
+  </footer>
+
+  </div>
+  <!-- /#siteContent -->
+
+  <script src="script.js"></script>
+</body>
+</html>
