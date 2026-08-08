@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in or sign up — RoomieFind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <script>
+    /* Instant redirect if already logged in — avoids a flash of the login form. */
+    try {
+      if (localStorage.getItem('roomiefind_auth')) {
+        window.location.replace('index.html');
+      }
+    } catch (err) { /* localStorage unavailable — just show the login form */ }
+  </script>
+
+  <!-- ========================================== -->
+  <!-- LOGIN / SIGN UP GATE                       -->
+  <!-- ========================================== -->
+  <div class="auth-screen" id="authScreen">
+    <button class="theme-toggle theme-toggle--floating" id="themeToggleAuth" type="button" aria-label="Toggle dark mode">
+      <svg class="theme-icon theme-icon--sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+      <svg class="theme-icon theme-icon--moon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+      </svg>
+    </button>
+
+    <div class="auth-card">
+
+      <a href="index.html" class="logo auth-logo">
+        <div class="logo-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </div>
+        <span class="logo-text">Roomie<span>Find</span></span>
+      </a>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab auth-tab--active" id="loginTab">Log In</button>
+        <button type="button" class="auth-tab" id="signupTab">Sign Up</button>
+      </div>
+
+      <!-- Log In Form -->
+      <form class="auth-form auth-form--active" id="loginForm" novalidate>
+        <p class="auth-intro">Welcome back! Log in to find your next home.</p>
+
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
+          <span class="form-error" id="loginEmailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+          <span class="form-error" id="loginPasswordError"></span>
+        </div>
+
+        <div class="auth-row">
+          <label class="auth-checkbox">
+            <input type="checkbox" id="rememberMe">
+            Remember me
+          </label>
+          <a href="#" class="auth-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Log In</button>
+
+        <p class="auth-switch">
+          Don't have an account?
+          <a href="#" class="auth-link" id="switchToSignup">Sign up</a>
+        </p>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form class="auth-form" id="signupForm" novalidate>
+        <p class="auth-intro">Create an account to start browsing rooms and flatmates.</p>
+
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Jane Doe" autocomplete="name">
+          <span class="form-error" id="signupNameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="you@email.com" autocomplete="email">
+          <span class="form-error" id="signupEmailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="At least 8 characters" autocomplete="new-password">
+          <span class="form-error" id="signupPasswordError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="signupConfirmPassword">Confirm Password</label>
+          <input type="password" id="signupConfirmPassword" placeholder="Re-enter your password" autocomplete="new-password">
+          <span class="form-error" id="signupConfirmPasswordError"></span>
+        </div>
+
+        <label class="auth-checkbox auth-checkbox--terms">
+          <input type="checkbox" id="agreeTerms">
+          I agree to the Terms of Service and Privacy Policy
+        </label>
+        <span class="form-error" id="agreeTermsError"></span>
+
+        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="#" class="auth-link" id="switchToLogin">Log in</a>
+        </p>
+      </form>
+
+    </div>
+  </div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

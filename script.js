@@ -43,43 +43,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ==========================================================
      0. LOGIN / SIGN UP GATE
+     Shared between login.html and index.html. Every element is
+     looked up defensively so this block never throws (and never
+     blocks the rest of the script) on a page where it doesn't apply.
      ========================================================== */
   var AUTH_KEY = 'roomiefind_auth';
 
-  var authScreen = document.getElementById('authScreen');
-  var siteContent = document.getElementById('siteContent');
-
-  var loginTab = document.getElementById('loginTab');
-  var signupTab = document.getElementById('signupTab');
-  var loginForm = document.getElementById('loginForm');
-  var signupForm = document.getElementById('signupForm');
-  var switchToSignup = document.getElementById('switchToSignup');
-  var switchToLogin = document.getElementById('switchToLogin');
-  var logoutLink = document.getElementById('logoutLink');
-
-  function showSite() {
-    authScreen.classList.add('auth-screen--hidden');
-    siteContent.classList.add('site-content--visible');
+  function isAuthenticated() {
+    try {
+      return !!localStorage.getItem(AUTH_KEY);
+    } catch (err) {
+      return false;
+    }
   }
 
-  function showAuthScreen() {
-    siteContent.classList.remove('site-content--visible');
-    authScreen.classList.remove('auth-screen--hidden');
-    showTab('login');
+  function setAuth(data) {
+    try {
+      localStorage.setItem(AUTH_KEY, JSON.stringify(data));
+    } catch (err) {
+      /* localStorage unavailable — continue without persistence */
+    }
   }
 
-  function showTab(which) {
-    var isLogin = which === 'login';
-    loginTab.classList.toggle('auth-tab--active', isLogin);
-    signupTab.classList.toggle('auth-tab--active', !isLogin);
-    loginForm.classList.toggle('auth-form--active', isLogin);
-    signupForm.classList.toggle('auth-form--active', !isLogin);
+  function clearAuth() {
+    try {
+      localStorage.removeItem(AUTH_KEY);
+    } catch (err) {
+      /* localStorage unavailable */
+    }
   }
-
-  loginTab.addEventListener('click', function () { showTab('login'); });
-  signupTab.addEventListener('click', function () { showTab('signup'); });
-  switchToSignup.addEventListener('click', function (e) { e.preventDefault(); showTab('signup'); });
-  switchToLogin.addEventListener('click', function (e) { e.preventDefault(); showTab('login'); });
 
   function setError(id, message) {
     var el = document.getElementById(id);
@@ -94,106 +86,122 @@ document.addEventListener('DOMContentLoaded', function () {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  // ---- Log In ----
-  loginForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    clearErrors(['loginEmailError', 'loginPasswordError']);
+  // ---- login.html: the auth form itself ----
+  var loginTab = document.getElementById('loginTab');
+  var signupTab = document.getElementById('signupTab');
+  var loginForm = document.getElementById('loginForm');
+  var signupForm = document.getElementById('signupForm');
+  var switchToSignup = document.getElementById('switchToSignup');
+  var switchToLogin = document.getElementById('switchToLogin');
 
-    var email = document.getElementById('loginEmail').value.trim();
-    var password = document.getElementById('loginPassword').value;
-    var hasError = false;
+  if (loginForm && signupForm) {
 
-    if (!email) {
-      setError('loginEmailError', 'Email is required.');
-      hasError = true;
-    } else if (!isValidEmail(email)) {
-      setError('loginEmailError', 'Enter a valid email address.');
-      hasError = true;
+    function showTab(which) {
+      var isLogin = which === 'login';
+      loginTab.classList.toggle('auth-tab--active', isLogin);
+      signupTab.classList.toggle('auth-tab--active', !isLogin);
+      loginForm.classList.toggle('auth-form--active', isLogin);
+      signupForm.classList.toggle('auth-form--active', !isLogin);
     }
 
-    if (!password) {
-      setError('loginPasswordError', 'Password is required.');
-      hasError = true;
+    loginTab.addEventListener('click', function () { showTab('login'); });
+    signupTab.addEventListener('click', function () { showTab('signup'); });
+    switchToSignup.addEventListener('click', function (e) { e.preventDefault(); showTab('signup'); });
+    switchToLogin.addEventListener('click', function (e) { e.preventDefault(); showTab('login'); });
+
+    // ---- Log In ----
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearErrors(['loginEmailError', 'loginPasswordError']);
+
+      var email = document.getElementById('loginEmail').value.trim();
+      var password = document.getElementById('loginPassword').value;
+      var hasError = false;
+
+      if (!email) {
+        setError('loginEmailError', 'Email is required.');
+        hasError = true;
+      } else if (!isValidEmail(email)) {
+        setError('loginEmailError', 'Enter a valid email address.');
+        hasError = true;
+      }
+
+      if (!password) {
+        setError('loginPasswordError', 'Password is required.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      setAuth({ email: email });
+      window.location.href = 'index.html';
+    });
+
+    // ---- Sign Up ----
+    signupForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearErrors([
+        'signupNameError',
+        'signupEmailError',
+        'signupPasswordError',
+        'signupConfirmPasswordError',
+        'agreeTermsError'
+      ]);
+
+      var name = document.getElementById('signupName').value.trim();
+      var email = document.getElementById('signupEmail').value.trim();
+      var password = document.getElementById('signupPassword').value;
+      var confirmPassword = document.getElementById('signupConfirmPassword').value;
+      var agreeTerms = document.getElementById('agreeTerms').checked;
+      var hasError = false;
+
+      if (!name) {
+        setError('signupNameError', 'Full name is required.');
+        hasError = true;
+      }
+
+      if (!email) {
+        setError('signupEmailError', 'Email is required.');
+        hasError = true;
+      } else if (!isValidEmail(email)) {
+        setError('signupEmailError', 'Enter a valid email address.');
+        hasError = true;
+      }
+
+      if (!password) {
+        setError('signupPasswordError', 'Password is required.');
+        hasError = true;
+      } else if (password.length < 8) {
+        setError('signupPasswordError', 'Use at least 8 characters.');
+        hasError = true;
+      }
+
+      if (confirmPassword !== password || !confirmPassword) {
+        setError('signupConfirmPasswordError', 'Passwords do not match.');
+        hasError = true;
+      }
+
+      if (!agreeTerms) {
+        setError('agreeTermsError', 'You must agree to continue.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      setAuth({ name: name, email: email });
+      window.location.href = 'index.html';
+    });
+  }
+
+  // ---- index.html: the protected home page ----
+  var siteContent = document.getElementById('siteContent');
+
+  if (siteContent) {
+    if (!isAuthenticated()) {
+      window.location.href = 'login.html';
+      return;
     }
-
-    if (hasError) return;
-
-    try {
-      localStorage.setItem(AUTH_KEY, JSON.stringify({ email: email }));
-    } catch (err) {
-      /* localStorage unavailable — continue without persistence */
-    }
-
-    showSite();
-  });
-
-  // ---- Sign Up ----
-  signupForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    clearErrors([
-      'signupNameError',
-      'signupEmailError',
-      'signupPasswordError',
-      'signupConfirmPasswordError',
-      'agreeTermsError'
-    ]);
-
-    var name = document.getElementById('signupName').value.trim();
-    var email = document.getElementById('signupEmail').value.trim();
-    var password = document.getElementById('signupPassword').value;
-    var confirmPassword = document.getElementById('signupConfirmPassword').value;
-    var agreeTerms = document.getElementById('agreeTerms').checked;
-    var hasError = false;
-
-    if (!name) {
-      setError('signupNameError', 'Full name is required.');
-      hasError = true;
-    }
-
-    if (!email) {
-      setError('signupEmailError', 'Email is required.');
-      hasError = true;
-    } else if (!isValidEmail(email)) {
-      setError('signupEmailError', 'Enter a valid email address.');
-      hasError = true;
-    }
-
-    if (!password) {
-      setError('signupPasswordError', 'Password is required.');
-      hasError = true;
-    } else if (password.length < 8) {
-      setError('signupPasswordError', 'Use at least 8 characters.');
-      hasError = true;
-    }
-
-    if (confirmPassword !== password || !confirmPassword) {
-      setError('signupConfirmPasswordError', 'Passwords do not match.');
-      hasError = true;
-    }
-
-    if (!agreeTerms) {
-      setError('agreeTermsError', 'You must agree to continue.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    try {
-      localStorage.setItem(AUTH_KEY, JSON.stringify({ name: name, email: email }));
-    } catch (err) {
-      /* localStorage unavailable — continue without persistence */
-    }
-
-    showSite();
-  });
-
-  // Skip the gate if already "logged in" from a previous visit
-  try {
-    if (localStorage.getItem(AUTH_KEY)) {
-      showSite();
-    }
-  } catch (err) {
-    /* localStorage unavailable — always show the gate */
+    siteContent.classList.add('site-content--visible');
   }
 
   /* ==========================================================
@@ -235,16 +243,13 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+    var logoutLink = document.getElementById('logoutLink');
     if (logoutLink) {
       logoutLink.addEventListener('click', function (event) {
         event.preventDefault();
         closeDropdown();
-        try {
-          localStorage.removeItem(AUTH_KEY);
-        } catch (err) {
-          /* localStorage unavailable */
-        }
-        showAuthScreen();
+        clearAuth();
+        window.location.href = 'login.html';
       });
     }
   }
