@@ -63,12 +63,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`===============================================`);
-  console.log(`🚀 RoomieFind Server is running on:`);
-  console.log(`👉 http://localhost:${PORT}`);
-  console.log(`📁 Static files & API mounted successfully`);
-  console.log(`===============================================`);
-});
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`===============================================`);
+    console.log(`🚀 RoomieFind Server is running on:`);
+    console.log(`👉 http://localhost:${PORT}`);
+    console.log(`📁 Static files & API mounted successfully`);
+    console.log(`===============================================`);
+  });
+}
 
-module.exports = { app, server };
+module.exports = app;
