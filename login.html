@@ -14,7 +14,7 @@
   <script>
     /* Instant redirect if already logged in — avoids a flash of the login form. */
     try {
-      if (localStorage.getItem('roomiefind_auth')) {
+      if (localStorage.getItem('roomiefind_token') || localStorage.getItem('roomiefind_auth')) {
         window.location.replace('index.html');
       }
     } catch (err) { /* localStorage unavailable — just show the login form */ }
@@ -75,6 +75,12 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-full">Log In</button>
+
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-gray-200); text-align: center;">
+          <button type="button" class="btn btn-outline btn-full" id="demoLoginBtn" style="font-size: 0.8125rem; padding: 0.625rem;">
+            ⚡ Quick Demo Log In (John Doe)
+          </button>
+        </div>
 
         <p class="auth-switch">
           Don't have an account?

@@ -71,4 +71,23 @@ router.post('/', requireAuth, (req, res) => {
   });
 });
 
+// DELETE cancel a tour
+router.delete('/:id', requireAuth, (req, res) => {
+  const bookingId = parseInt(req.params.id, 10);
+  if (isNaN(bookingId)) {
+    return res.status(400).json({ error: 'Invalid booking ID' });
+  }
+
+  const booking = db.prepare('SELECT id FROM bookings WHERE id = ? AND user_id = ?').get(bookingId, req.user.id);
+  if (!booking) {
+    return res.status(404).json({ error: 'Booking not found or not authorized' });
+  }
+
+  db.prepare('DELETE FROM bookings WHERE id = ?').run(bookingId);
+  return res.json({
+    message: 'Tour cancelled successfully'
+  });
+});
+
 module.exports = router;
+

@@ -169,6 +169,19 @@ document.addEventListener('DOMContentLoaded', function () {
     if (switchToSignup) switchToSignup.addEventListener('click', function (e) { e.preventDefault(); showTab('signup'); });
     if (switchToLogin) switchToLogin.addEventListener('click', function (e) { e.preventDefault(); showTab('login'); });
 
+    var demoLoginBtn = document.getElementById('demoLoginBtn');
+    if (demoLoginBtn) {
+      demoLoginBtn.addEventListener('click', function () {
+        var emailInput = document.getElementById('loginEmail');
+        var passwordInput = document.getElementById('loginPassword');
+        if (emailInput && passwordInput) {
+          emailInput.value = 'john.doe@email.com';
+          passwordInput.value = 'password123';
+          loginForm.requestSubmit ? loginForm.requestSubmit() : loginForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      });
+    }
+
     // Handle Login
     loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -457,6 +470,8 @@ document.addEventListener('DOMContentLoaded', function () {
       card.addEventListener('click', function (e) {
         if (e.target.closest('.save-toggle')) return;
         selectListing(room);
+        var detailSec = document.getElementById('detailSection');
+        if (detailSec) detailSec.scrollIntoView({ behavior: 'smooth' });
       });
 
       // Save toggle button
@@ -544,6 +559,16 @@ document.addEventListener('DOMContentLoaded', function () {
         var img = document.createElement('img');
         img.src = src;
         img.alt = 'Photo ' + (idx + 2);
+        img.style.cursor = 'pointer';
+        img.title = 'Click to view full photo';
+        img.addEventListener('click', function () {
+          var mainImg = galleryMain ? galleryMain.querySelector('img') : null;
+          if (mainImg) {
+            var temp = mainImg.src;
+            mainImg.src = img.src;
+            img.src = temp;
+          }
+        });
         gallerySub.appendChild(img);
       });
     }
@@ -963,9 +988,30 @@ document.addEventListener('DOMContentLoaded', function () {
           item.style.fontSize = '0.8125rem';
 
           item.innerHTML =
-            '<div style="font-weight: 700; color: var(--color-dark);">' + b.listing_title + '</div>' +
-            '<div style="color: var(--color-gray-500); margin-top: 0.2rem;">📅 ' + b.tour_date + ' at ' + b.tour_time + ' (' + b.guests + ')</div>' +
-            '<div style="color: var(--color-primary); font-weight: 600; margin-top: 0.2rem;">Status: ' + b.status + ' • Host: ' + b.host_name + '</div>';
+            '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">' +
+              '<div>' +
+                '<div style="font-weight: 700; color: var(--color-dark);">' + b.listing_title + '</div>' +
+                '<div style="color: var(--color-gray-500); margin-top: 0.2rem;">📅 ' + b.tour_date + ' at ' + b.tour_time + ' (' + b.guests + ')</div>' +
+                '<div style="color: var(--color-primary); font-weight: 600; margin-top: 0.2rem;">Status: ' + b.status + ' • Host: ' + b.host_name + '</div>' +
+              '</div>' +
+              '<button type="button" class="btn btn-outline btn-sm cancel-tour-btn" style="color: var(--color-rose-500); border-color: var(--color-rose-500); padding: 0.25rem 0.5rem; font-size: 0.75rem; flex-shrink: 0;">Cancel</button>' +
+            '</div>';
+
+          var cancelBtn = item.querySelector('.cancel-tour-btn');
+          if (cancelBtn) {
+            cancelBtn.addEventListener('click', function () {
+              apiFetch('/api/bookings/' + b.id, { method: 'DELETE' })
+                .then(function (res) { return res.json(); })
+                .then(function (resData) {
+                  showToast(resData.message || 'Tour cancelled', 'success');
+                  openProfileModal();
+                  refreshUserStats();
+                })
+                .catch(function (err) {
+                  showToast('Failed to cancel tour: ' + err.message, 'error');
+                });
+            });
+          }
 
           profileBookingsList.appendChild(item);
         });
@@ -1394,5 +1440,26 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
+
+  /* ==========================================================
+     GLOBAL KEYBOARD SHORTCUTS & DATE CONSTRAINTS
+     ========================================================== */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay--open').forEach(function (m) {
+        m.classList.remove('modal-overlay--open');
+      });
+      var uDropdown = document.getElementById('userDropdown');
+      if (uDropdown) uDropdown.classList.remove('user-dropdown--open');
+    }
+  });
+
+  try {
+    var todayStr = new Date().toISOString().split('T')[0];
+    var tourDateEl = document.getElementById('tourDate');
+    if (tourDateEl) tourDateEl.min = todayStr;
+    var postMoveInEl = document.getElementById('postMoveIn');
+    if (postMoveInEl) postMoveInEl.min = todayStr;
+  } catch (err) {}
 
 });
