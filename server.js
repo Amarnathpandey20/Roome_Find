@@ -19,27 +19,44 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logger for API calls
+// URL normalization for Vercel Serverless Function rewrites & proxies
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  const origPath = req.headers['x-matched-path'] || req.headers['x-invoke-path'] || req.headers['x-now-route-matches'];
+  if (origPath && (req.url === '/api/index.js' || req.url.startsWith('/api/index.js?') || req.url === '/api' || req.url === '/')) {
+    const queryIndex = req.url.indexOf('?');
+    const queryString = queryIndex !== -1 ? req.url.substring(queryIndex) : '';
+    req.url = origPath + queryString;
+  }
+  if (req.query && req.query.match && (req.url === '/api/index.js' || req.url.startsWith('/api/index.js?'))) {
+    const matchVal = Array.isArray(req.query.match) ? req.query.match.join('/') : req.query.match;
+    req.url = '/api/' + matchVal;
+  }
+  if (req.url.startsWith('/api') || req.path.startsWith('/api')) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   }
   next();
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/listings', listingRoutes);
-app.use('/api/saved', savedRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/messages', messageRoutes);
+// API Routes (supports both /api/path and /path)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/listings', '/listings'], listingRoutes);
+app.use(['/api/saved', '/saved'], savedRoutes);
+app.use(['/api/bookings', '/bookings'], bookingRoutes);
+app.use(['/api/messages', '/messages'], messageRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health', '/api'], (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     service: 'RoomieFind Backend API'
+  });
+});
+
+// Explicit JSON 404 handler for unhandled /api calls (prevents falling through to static HTML)
+app.use('/api', (req, res) => {
+  res.status(404).json({
+    error: `API endpoint not found: ${req.method} ${req.originalUrl || req.url}`
   });
 });
 
@@ -63,7 +80,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`===============================================`);
     console.log(`🚀 RoomieFind Server is running on:`);

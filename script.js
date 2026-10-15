@@ -117,13 +117,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Non-JSON response (e.g. 404 HTML, 500 HTML)
     return res.text().then(function (text) {
+      var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+      var hint = isLocal
+        ? 'Please ensure backend is running at http://localhost:3000 (run: npm start).'
+        : 'Please verify serverless deployment configuration.';
       if (res.status === 404) {
-        throw new Error('API server endpoint not found (404). Please ensure the backend server is running on http://localhost:3000.');
+        throw new Error('API endpoint not found (404). ' + hint);
       }
       if (res.status >= 500) {
-        throw new Error('Server error (' + res.status + '). Please check backend logs.');
+        throw new Error('Server error (' + res.status + '). ' + hint);
       }
-      throw new Error('Backend returned unexpected non-JSON response. Please ensure backend is running at http://localhost:3000 (run: npm start).');
+      throw new Error('Backend returned unexpected non-JSON response. ' + hint);
     });
   }
 
@@ -142,7 +146,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var fullUrl = url.indexOf('http') === 0 ? url : (getApiBaseUrl() + url);
     return fetch(fullUrl, options).catch(function (networkErr) {
-      throw new Error('Cannot connect to backend server. Make sure it is running on http://localhost:3000 (run: npm start in terminal)');
+      var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+      var hint = isLocal
+        ? 'Make sure it is running on http://localhost:3000 (run: npm start in terminal).'
+        : 'Please check your connection and deployment.';
+      throw new Error('Cannot connect to backend server. ' + hint);
     });
   }
 
@@ -217,6 +225,19 @@ document.addEventListener('DOMContentLoaded', function () {
         var passwordInput = document.getElementById('loginPassword');
         if (emailInput && passwordInput) {
           emailInput.value = 'john.doe@email.com';
+          passwordInput.value = 'password123';
+          loginForm.requestSubmit ? loginForm.requestSubmit() : loginForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      });
+    }
+
+    var amarnathDemoLoginBtn = document.getElementById('amarnathDemoLoginBtn');
+    if (amarnathDemoLoginBtn) {
+      amarnathDemoLoginBtn.addEventListener('click', function () {
+        var emailInput = document.getElementById('loginEmail');
+        var passwordInput = document.getElementById('loginPassword');
+        if (emailInput && passwordInput) {
+          emailInput.value = 'amarnathpandey093@gmail.com';
           passwordInput.value = 'password123';
           loginForm.requestSubmit ? loginForm.requestSubmit() : loginForm.dispatchEvent(new Event('submit', { cancelable: true }));
         }

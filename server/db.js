@@ -119,6 +119,23 @@ function seedData() {
 
     insertUser.run('Alex Rivera', 'alex@roomiefind.com', hashedPassword, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80');
     insertUser.run('Elena Rostova', 'elena@roomiefind.com', hashedPassword, 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80');
+    insertUser.run('Amarnath Pandey', 'amarnathpandey093@gmail.com', hashedPassword, 'https://ui-avatars.com/api/?name=Amarnath+Pandey&background=0F5132&color=fff&bold=true');
+  }
+
+  const amarnathUser = db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get('amarnathpandey093@gmail.com');
+  const amarnathHashedPassword = bcrypt.hashSync('password123', 10);
+  if (!amarnathUser) {
+    db.prepare('INSERT INTO users (name, email, password, avatar) VALUES (?, ?, ?, ?)').run(
+      'Amarnath Pandey',
+      'amarnathpandey093@gmail.com',
+      amarnathHashedPassword,
+      'https://ui-avatars.com/api/?name=Amarnath+Pandey&background=0F5132&color=fff&bold=true'
+    );
+  } else {
+    db.prepare('UPDATE users SET password = ? WHERE LOWER(email) = ?').run(
+      amarnathHashedPassword,
+      'amarnathpandey093@gmail.com'
+    );
   }
 
   const listingCount = db.prepare('SELECT COUNT(*) as count FROM listings').get().count;
