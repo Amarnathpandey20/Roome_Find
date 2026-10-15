@@ -90,6 +90,43 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) {}
   }
 
+  function getApiBaseUrl() {
+    // If the page is opened from file:// or a static dev server (e.g. VS Code Live Server on port 5500),
+    // automatically direct API calls to the running backend on port 3000
+    if (window.location.protocol === 'file:') {
+      return 'http://localhost:3000';
+    }
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (window.location.port && window.location.port !== '3000') {
+        return 'http://localhost:3000';
+      }
+    }
+    return '';
+  }
+
+  function parseApiResponse(res) {
+    var contentType = (res.headers && res.headers.get('content-type')) || '';
+    if (contentType.indexOf('application/json') !== -1) {
+      return res.json().then(function (data) {
+        if (!res.ok) {
+          throw new Error(data.error || 'Request failed with status ' + res.status);
+        }
+        return data;
+      });
+    }
+
+    // Non-JSON response (e.g. 404 HTML, 500 HTML)
+    return res.text().then(function (text) {
+      if (res.status === 404) {
+        throw new Error('API server endpoint not found (404). Please ensure the backend server is running on http://localhost:3000.');
+      }
+      if (res.status >= 500) {
+        throw new Error('Server error (' + res.status + '). Please check backend logs.');
+      }
+      throw new Error('Backend returned unexpected non-JSON response. Please ensure backend is running at http://localhost:3000 (run: npm start).');
+    });
+  }
+
   function apiFetch(url, options) {
     options = options || {};
     var headers = options.headers || {};
@@ -102,7 +139,11 @@ document.addEventListener('DOMContentLoaded', function () {
       options.body = JSON.stringify(options.body);
     }
     options.headers = headers;
-    return fetch(url, options);
+
+    var fullUrl = url.indexOf('http') === 0 ? url : (getApiBaseUrl() + url);
+    return fetch(fullUrl, options).catch(function (networkErr) {
+      throw new Error('Cannot connect to backend server. Make sure it is running on http://localhost:3000 (run: npm start in terminal)');
+    });
   }
 
   /* ==========================================================
@@ -209,12 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
         method: 'POST',
         body: { email: email, password: password }
       })
-      .then(function (res) {
-        return res.json().then(function (data) {
-          if (!res.ok) throw new Error(data.error || 'Login failed');
-          return data;
-        });
-      })
+      .then(parseApiResponse)
       .then(function (data) {
         setAuthSession(data.token, data.user);
         window.location.href = 'index.html';
@@ -275,12 +311,7 @@ document.addEventListener('DOMContentLoaded', function () {
         method: 'POST',
         body: { name: name, email: email, password: password }
       })
-      .then(function (res) {
-        return res.json().then(function (data) {
-          if (!res.ok) throw new Error(data.error || 'Registration failed');
-          return data;
-        });
-      })
+      .then(parseApiResponse)
       .then(function (data) {
         setAuthSession(data.token, data.user);
         window.location.href = 'index.html';
@@ -313,14 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Verify auth session against backend
   apiFetch('/api/auth/me')
-    .then(function (res) {
-      if (!res.ok) {
-        clearAuthSession();
-        window.location.href = 'login.html';
-        return null;
-      }
-      return res.json();
-    })
+    .then(parseApiResponse)
     .then(function (data) {
       if (!data) return;
       updateUserUI(data.user, data.stats);
@@ -657,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (currentFilters.moveIn) params.append('moveIn', currentFilters.moveIn);
 
     apiFetch('/api/listings?' + params.toString())
-      .then(function (res) { return res.json(); })
+      .then(parseApiResponse)
       .then(function (data) {
         allListings = data.listings || [];
         renderListings(allListings);
@@ -805,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function () {
      ========================================================== */
   function toggleSaveListing(listingId, btnEl) {
     apiFetch('/api/saved/' + listingId, { method: 'POST' })
-      .then(function (res) { return res.json(); })
+      .then(parseApiResponse)
       .then(function (data) {
         var isSaved = data.saved;
         if (btnEl) {
@@ -834,7 +858,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function refreshUserStats() {
     apiFetch('/api/auth/me')
-      .then(function (res) { return res.json(); })
+      .then(parseApiResponse)
       .then(function (data) {
         if (data && data.stats) {
           var savedBadge = document.getElementById('savedCountBadge');
@@ -881,7 +905,7 @@ document.addEventListener('DOMContentLoaded', function () {
     savedModal.classList.add('modal-overlay--open');
 
     apiFetch('/api/saved')
-      .then(function (res) { return res.json(); })
+      .then(parseApiResponse)
       .then(function (data) {
         var listings = data.listings || [];
         savedListContainer.innerHTML = '';
@@ -969,7 +993,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch user bookings
     apiFetch('/api/bookings')
-      .then(function (res) { return res.json(); })
+      .then(parseApiResponse)
       .then(function (data) {
         if (!profileBookingsList) return;
         profileBookingsList.innerHTML = '';
@@ -1001,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (cancelBtn) {
             cancelBtn.addEventListener('click', function () {
               apiFetch('/api/bookings/' + b.id, { method: 'DELETE' })
-                .then(function (res) { return res.json(); })
+                .then(parseApiResponse)
                 .then(function (resData) {
                   showToast(resData.message || 'Tour cancelled', 'success');
                   openProfileModal();
@@ -1160,12 +1184,7 @@ document.addEventListener('DOMContentLoaded', function () {
           method: 'POST',
           body: payload
         })
-        .then(function (res) {
-          return res.json().then(function (data) {
-            if (!res.ok) throw new Error(data.error || 'Failed to publish listing');
-            return data;
-          });
-        })
+        .then(parseApiResponse)
         .then(function (data) {
           postNextBtn.disabled = false;
           postNextBtn.textContent = origText;
@@ -1290,12 +1309,7 @@ document.addEventListener('DOMContentLoaded', function () {
             notes: notes
           }
         })
-        .then(function (res) {
-          return res.json().then(function (data) {
-            if (!res.ok) throw new Error(data.error || 'Failed to book tour');
-            return data;
-          });
-        })
+        .then(parseApiResponse)
         .then(function (data) {
           confirmBtn.disabled = false;
           confirmBtn.textContent = origText;
@@ -1369,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', function () {
     chatThread.innerHTML = '<p style="color: var(--color-gray-500); text-align: center; margin: auto;">Loading messages...</p>';
 
     apiFetch('/api/messages/' + listingId)
-      .then(function (res) { return res.json(); })
+      .then(parseApiResponse)
       .then(function (data) {
         chatThread.innerHTML = '';
         var messages = data.messages || [];
@@ -1425,7 +1439,7 @@ document.addEventListener('DOMContentLoaded', function () {
           method: 'POST',
           body: { message: text }
         })
-        .then(function (res) { return res.json(); })
+        .then(parseApiResponse)
         .then(function (data) {
           if (data.userMessage) appendChatMessage(data.userMessage, true);
           if (data.hostMessage) {

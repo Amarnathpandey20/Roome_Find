@@ -2,7 +2,9 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, '..', 'roomiefind.db');
+const dbPath = process.env.VERCEL
+  ? path.join('/tmp', 'roomiefind.db')
+  : path.join(__dirname, '..', 'roomiefind.db');
 const db = new DatabaseSync(dbPath);
 
 // Enable foreign keys and WAL mode for better concurrency
