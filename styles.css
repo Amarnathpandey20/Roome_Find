@@ -1795,3 +1795,274 @@ h1, h2, h3, h4, p {
   font-size: 0.875rem;
   color: var(--color-gray-500);
 }
+
+/* ==========================================================================
+   ENHANCEMENTS & ADDITIONS (Wizard, Saved, Toasts, How It Works)
+   ========================================================================== */
+
+.save-toggle--active {
+  color: var(--color-rose-500) !important;
+  background-color: var(--color-white) !important;
+}
+.save-toggle--active svg {
+  fill: currentColor;
+}
+
+.listing-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.listing-card--active {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px var(--color-primary), var(--shadow-xl) !important;
+}
+
+/* Step Wizard Panes */
+.step-pane {
+  display: none;
+  animation: stepFadeIn 0.25s ease-out;
+}
+.step-pane--active {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  .checkbox-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  cursor: pointer;
+}
+.checkbox-item input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+}
+
+/* How It Works Section */
+.how-it-works {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  border-top: 1px solid var(--color-gray-200);
+}
+.how-it-works__header {
+  text-align: center;
+  max-width: 42rem;
+  margin: 0 auto 3.5rem auto;
+}
+.how-it-works__header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin-bottom: 0.5rem;
+}
+.how-it-works__header p {
+  font-size: 1rem;
+  color: var(--color-gray-500);
+}
+.how-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .how-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.how-card {
+  background-color: var(--color-white);
+  padding: 2.5rem 1.75rem;
+  border-radius: var(--radius-3xl);
+  border: 1px solid var(--color-gray-200);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.how-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+.how-card__icon {
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: var(--radius-2xl);
+  background: var(--color-emerald-50);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+.how-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+.how-card p {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  line-height: 1.6;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  background-color: var(--color-dark);
+  color: #ffffff;
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast--visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+.toast--success {
+  background-color: var(--color-primary);
+}
+.toast--error {
+  background-color: var(--color-rose-500);
+}
+
+/* Saved Listings & Profile Modals */
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+.saved-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-gray-200);
+  background-color: var(--color-gray-50);
+  transition: background-color 0.15s ease;
+}
+.saved-item:hover {
+  background-color: var(--color-gray-100);
+}
+.saved-item__img {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-xl);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.saved-item__info {
+  flex: 1;
+  min-width: 0;
+}
+.saved-item__title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.saved-item__price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-top: 0.15rem;
+}
+.saved-item__loc {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+.saved-item__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.profile-card-top {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+.profile-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+.profile-stat-box {
+  background-color: var(--color-gray-50);
+  padding: 0.875rem 0.5rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-gray-200);
+}
+.profile-stat-box .num {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+.profile-stat-box .label {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  margin-top: 0.25rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--color-gray-500);
+  grid-column: 1 / -1;
+}
+.empty-state__icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.empty-state h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 0.25rem;
+}
